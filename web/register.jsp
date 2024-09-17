@@ -1,58 +1,75 @@
-<%@ page import="java.sql.*" %>
-<%@ page import="java.security.MessageDigest" %>
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page import="java.sql.*, jakarta.servlet.http.*, jakarta.servlet.*,java.security.*" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register New User</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - TRAVSPLIT</title>
+    <link rel="stylesheet" href="styles.css"> <!-- CSS file for styling -->
 </head>
 <body>
-    <h2>Register New User</h2>
-    <form action="register.jsp" method="POST">
-        Username: <input type="text" name="username" required><br><br>
-        Email: <input type="email" name="email" required><br><br>
-        Password: <input type="password" name="password" required><br><br>
-        <input type="submit" value="Register">
-    </form>
+    <div class="login-container">
+        <h2>Register for TRAVSPLIT</h2>
+        <form  method="post">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <div class="input-group">
+                <label for="phone">Phone Number (Optional)</label>
+                <input type="text" name="phone" id="phone">
+            </div>
+            <div class="input-group">
+                <button type="submit">Register</button>
+            </div>
+            <div class="extra-links">
+                <a href="index.jsp">Already have an account? Login here</a>
+            </div>
+        </form>
+
+        <%
+            String username = request.getParameter("username");
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String phone = request.getParameter("phone");
+
+            if (username != null && email != null && password != null) {
+                Connection conn = null;
+                PreparedStatement stmt = null;
+
+                try {
+                    // Load the MySQL driver
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
+
+                    String query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+                    stmt = conn.prepareStatement(query);
+                    stmt.setString(1, username);
+                    stmt.setString(2, email);
+                    stmt.setString(3, password);  // For simplicity, password is stored as plain text (hashing recommended)
+                    int result = stmt.executeUpdate();
+                    if (result > 0) {
+                        response.sendRedirect("index.jsp");  // Redirect to login page after successful registration
+                    } else {
+                        out.println("<div class='error'>Registration failed. Try again.</div>");
+                    }
+                } catch (Exception e) {
+                    out.println("Error: " + e.getMessage());
+                } finally {
+                    if (stmt != null) stmt.close();
+                    if (conn != null) conn.close();
+                }
+            }
+        %>
+    </div>
 </body>
 </html>
-
-<%
-    String dbURL = "jdbc:mysql://localhost:3306/travsplit_db"; // Your DB URL
-                        String dbUser = "sanjai"; // Your DB user
-                        String dbPassword = "sa07nj12ai04";
-
-    if (request.getMethod().equalsIgnoreCase("POST")) {
-        String username = request.getParameter("username");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-
-        try {
-            // Hashing the password for security
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedPassword = md.digest(password.getBytes());
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
-
-            String query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, username);
-            ps.setString(2, email);
-            ps.setString(3, new String()); // Save hashed password
-
-            int row = ps.executeUpdate();
-            if (row > 0) {
-                out.println("Registration successful!");
-                response.sendRedirect("index.jsp");
-            } else {
-                out.println("Registration failed.");
-            }
-
-            conn.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println("Error occurred during registration: " + e.getMessage());
-        }
-    }
-%>

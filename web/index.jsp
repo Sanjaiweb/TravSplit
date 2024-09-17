@@ -1,110 +1,72 @@
-<%@ page import="java.sql.*, jakarta.servlet.http.*, jakarta.servlet.*" %>
-
+<%@ page import="java.sql.*, jakarta.servlet.http.*, jakarta.servlet.*, java.security.*" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAVSPLIT - Login</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .login-container {
-            margin-top: 100px;
-            max-width: 400px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        .btn-custom {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-custom:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Login - TRAVSPLIT</title>
+    <link rel="stylesheet" href="styles.css"> <!-- CSS file for styling -->
 </head>
 <body>
+    <div class="login-container">
+        <h2>Login to TRAVSPLIT</h2>
+        <form  method="post">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <div class="input-group">
+                <button type="submit">Login</button>
+            </div>
+            <div class="extra-links">
+                <a href="register.jsp">Don't have an account? Register here</a>
+            </div>
+        </form>
 
-    <div class="container">
-        <div class="login-container mx-auto">
-            <h2 class="text-center mb-4">Login to TRAVSPLIT</h2>
-            <form action="index.jsp" method="POST">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                </div>
-                <button type="submit" class="btn btn-custom btn-block">Login</button>
-                <div class="text-center mt-3">
-                    <a href="register.jsp">Create an account</a> | <a href="forgotpassword.jsp">Forgot password?</a>
-                </div>
-            </form>
+        <%
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
 
-            <%
-                // Only handle POST requests
-                if ("POST".equalsIgnoreCase(request.getMethod())) {
-                    String email = request.getParameter("email");
-                    String password = request.getParameter("password");
+            if (email != null && password != null) {
+                Connection conn = null;
+                PreparedStatement stmt = null;
+                ResultSet rs = null;
 
-                    Connection conn = null;
-                    PreparedStatement stmt = null;
-                    ResultSet rs = null;
+                try {
+                    // Load the MySQL driver
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
-                    try {
-                        // Load the MySQL JDBC driver
-                        Class.forName("com.mysql.cj.jdbc.Driver");
+                    String query = "SELECT * FROM users WHERE email = ?";
+                    stmt = conn.prepareStatement(query);
+                    stmt.setString(1, email);
+                    rs = stmt.executeQuery();
 
-                        // Connect to the database
-                        String dbURL = "jdbc:mysql://localhost:3306/travsplit_db";
-                        String dbUser = "sanjai";
-                        String dbPassword = "sa07nj12ai04";
-                        conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
-
-                        // Prepare and execute SQL query
-                        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
-                        stmt = conn.prepareStatement(query);
-                        stmt.setString(1, email);
-                        stmt.setString(2, password); // In production, use hashed passwords
-
-                        rs = stmt.executeQuery();
-
-                        if (rs.next()) {
-                            // Login successful
-                           
-                            session.setAttribute("user", email);
-                            response.sendRedirect("dashboard.jsp");
+                    if (rs.next()) {
+                        String dbPassword = rs.getString("password");
+                        if (dbPassword.equals(password)) {
+                            session.setAttribute("username", rs.getString("username"));
+                            response.sendRedirect("dashboard.jsp"); // Redirect to dashboard on successful login
                         } else {
-                            // Login failed
-                            out.println("<div class='alert alert-danger mt-3'>Invalid email or password.</div>");
+                            out.println("<div class='error'>Invalid credentials. Try again.</div>");
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        out.println("<div class='alert alert-danger mt-3'>An error occurred. Please try again later.</div>");
-                    } finally {
-                        try {
-                            if (rs != null) rs.close();
-                            if (stmt != null) stmt.close();
-                            if (conn != null) conn.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
+                    } else {
+                        out.println("<div class='error'>User does not exist.</div>");
                     }
+                } catch (Exception e) {
+                    out.println("Error: " + e.getMessage());
+                } finally {
+                    if (rs != null) rs.close();
+                    if (stmt != null) stmt.close();
+                    if (conn != null) conn.close();
                 }
-            %>
-        </div>
+            }
+        %>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 </body>
 </html>
