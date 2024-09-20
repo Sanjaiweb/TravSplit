@@ -50,7 +50,10 @@
                     if (rs.next()) {
                         String dbPassword = rs.getString("password");
                         if (dbPassword.equals(password)) {
+                         session.setAttribute("user_id", rs.getString("user_id"));
                             session.setAttribute("username", rs.getString("username"));
+                             session.setAttribute("email", rs.getString("email"));
+                           
                             response.sendRedirect("dashboard.jsp"); // Redirect to dashboard on successful login
                         } else {
                             out.println("<div class='error'>Invalid credentials. Try again.</div>");
