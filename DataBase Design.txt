@@ -1,0 +1,74 @@
+DataBase Design:
+
+-- Create Users Table
+CREATE TABLE Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(15) NULL
+);
+
+-- Create Groups Table
+CREATE TABLE Groups (
+    group_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_name VARCHAR(100) NOT NULL,
+    created_by_user_id INT,
+    FOREIGN KEY (created_by_user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create GroupMembers Table
+CREATE TABLE GroupMembers (
+    group_id INT,
+    user_id INT,
+    role ENUM('admin', 'member') DEFAULT 'member',
+    PRIMARY KEY (group_id, user_id),
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create Expenses Table
+CREATE TABLE Expenses (
+    expense_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT,
+    created_by_user_id INT,
+    amount DECIMAL(10, 2) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by_user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create ExpenseSplits Table
+CREATE TABLE ExpenseSplits (
+    expense_id INT,
+    user_id INT,
+    amount_owed DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (expense_id, user_id),
+    FOREIGN KEY (expense_id) REFERENCES Expenses(expense_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create Payments Table
+CREATE TABLE Payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT,
+    payer_user_id INT,
+    payee_user_id INT,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id) ON DELETE CASCADE,
+    FOREIGN KEY (payer_user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (payee_user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Create Notifications Table
+CREATE TABLE Notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    group_id INT,
+    message TEXT NOT NULL,
+    status ENUM('read', 'unread') DEFAULT 'unread',
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id) ON DELETE CASCADE
+);
