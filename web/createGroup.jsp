@@ -29,6 +29,7 @@
             if (request.getMethod().equalsIgnoreCase("post")) {
                 String groupName = request.getParameter("groupName");
                 String description = request.getParameter("description");
+                String username = (String)session.getAttribute("username");
                  // Retrieve user ID from session as String
                 String userIdString = (String) session.getAttribute("user_id");
                 if (userIdString == null) {
@@ -51,15 +52,17 @@
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
-                    String sql = "INSERT INTO groups (user_id, group_name, description) VALUES (?, ?, ?)";
+                    String sql = "INSERT INTO groups (user_id, group_name, description,created_user) VALUES (?, ?, ?,?)";
                     pstmt = conn.prepareStatement(sql);
                     pstmt.setInt(1, userId);
                     pstmt.setString(2, groupName);
                     pstmt.setString(3, description);
+                    pstmt.setString(4, username);
 
                     int rowsAffected = pstmt.executeUpdate();
                     if (rowsAffected > 0) {
                         out.println("<div class='alert alert-success mt-3'>Group created successfully!</div>");
+                         response.sendRedirect("dashboard.jsp");
                     } else {
                         out.println("<div class='alert alert-danger mt-3'>Failed to create group.</div>");
                     }

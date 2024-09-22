@@ -51,88 +51,6 @@
             </div>
         </section>
 
-        <section class="mb-4">
-            <div class="row">
-                <!-- Expense Overview Card -->
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Expense Overview</h3>
-                        </div>
-                        <div class="card-body">
-                            <%
-                                Connection conn = null;
-                                PreparedStatement pstmt = null;
-                                ResultSet rs = null;
-                                double totalExpenses = 0.0;
-                                try {
-                                    Class.forName("com.mysql.cj.jdbc.Driver");
-                                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
-
-                                    // Get total expenses for this user
-                                    String expenseQuery = "SELECT SUM(amount) FROM expenses WHERE user_id = ?";
-                                    pstmt = conn.prepareStatement(expenseQuery);
-                                    pstmt.setInt(1, (Integer) session.getAttribute("user_id"));
-                                    rs = pstmt.executeQuery();
-                                    if (rs.next()) {
-                                        totalExpenses = rs.getDouble(1);
-                                    }
-                            %>
-                            <p><strong>Total Expenses:</strong> $<%= totalExpenses %></p>
-                            <% 
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    if (rs != null) rs.close();
-                                    if (pstmt != null) pstmt.close();
-                                    if (conn != null) conn.close();
-                                }
-                            %>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trip Statistics Card -->
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Trip Statistics</h3>
-                        </div>
-                        <div class="card-body">
-                            <%
-                                Connection conn2 = null;
-                                PreparedStatement pstmt2 = null;
-                                ResultSet rs2 = null;
-                                int totalTrips = 0;
-                                try {
-                                    Class.forName("com.mysql.cj.jdbc.Driver");
-                                    conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
-
-                                    // Get total trips for this user
-                                    String tripQuery = "SELECT COUNT(*) FROM groups WHERE user_id = ?";
-                                    pstmt2 = conn2.prepareStatement(tripQuery);
-                                    pstmt2.setInt(1, (Integer) session.getAttribute("user_id"));
-                                    rs2 = pstmt2.executeQuery();
-                                    if (rs2.next()) {
-                                        totalTrips = rs2.getInt(1);
-                                    }
-                            %>
-                            <p><strong>Total Trips:</strong> <%= totalTrips %></p>
-                            <% 
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    if (rs2 != null) rs2.close();
-                                    if (pstmt2 != null) pstmt2.close();
-                                    if (conn2 != null) conn2.close();
-                                }
-                            %>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Existing Trips/Groups Section -->
         <section class="mb-4">
             <div class="card">
@@ -141,18 +59,19 @@
                 </div>
                 <div class="card-body">
                     <%
-                        Connection conn3 = null;
-                        PreparedStatement pstmt3 = null;
-                        ResultSet rs3 = null;
+                        Connection conn = null;
+                        PreparedStatement pstmt = null;
+                        ResultSet rs = null;
                         try {
                             Class.forName("com.mysql.cj.jdbc.Driver");
-                            conn3 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
+                            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
                             // Get trips/groups for this user
                             String tripListQuery = "SELECT group_name, description, created_at FROM groups WHERE user_id = ?";
-                            pstmt3 = conn3.prepareStatement(tripListQuery);
-                            pstmt3.setInt(1, (Integer) session.getAttribute("user_id"));
-                            rs3 = pstmt3.executeQuery();
+                            pstmt = conn.prepareStatement(tripListQuery);
+                            pstmt.setInt(1, (Integer) session.getAttribute("user_id"));
+                             session.setAttribute("username", rs.getString("username"));// Ensure user_id is an Integer
+                            rs = pstmt.executeQuery();
                     %>
                     <table class="table table-striped">
                         <thead>
@@ -163,73 +82,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% while (rs3.next()) { %>
-                            <tr>
-                                <td><%= rs3.getString("group_name") %></td>
-                                <td><%= rs3.getString("description") %></td>
-                                <td><%= rs3.getDate("created_at") %></td>
-                            </tr>
-                            <% } %>
+                            <% 
+                            if (!rs.isBeforeFirst()) { // Check if there are no results
+                                %>
+                                <tr>
+                                    <td colspan="3" class="text-center">No groups found.</td>
+                                </tr>
+                                <%
+                            } else {
+                                while (rs.next()) { 
+                                %>
+                                <tr>
+                                    <td><%= rs.getString("group_name") %></td>
+                                    <td><%= rs.getString("description") %></td>
+                                    <td><%= rs.getDate("created_at") %></td>
+                                </tr>
+                                <% 
+                                } 
+                            }
+                            %>
                         </tbody>
                     </table>
                     <% 
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            e.printStackTrace(); // Print the stack trace for debugging
                         } finally {
-                            if (rs3 != null) rs3.close();
-                            if (pstmt3 != null) pstmt3.close();
-                            if (conn3 != null) conn3.close();
-                        }
-                    %>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Transactions Section -->
-        <section class="mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Recent Transactions</h3>
-                </div>
-                <div class="card-body">
-                    <%  Connection conn4 = null;
-                        PreparedStatement pstmt4 = null;
-                        ResultSet rs4 = null;
-                        try {
-                            Class.forName("com.mysql.cj.jdbc.Driver");
-                            conn4 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
-
-                            // Get recent transactions for this user
-                            String transactionQuery = "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC LIMIT 5";
-                            pstmt4 = conn4.prepareStatement(transactionQuery);
-                            pstmt4.setInt(1, (Integer) session.getAttribute("user_id"));
-                            rs4 = pstmt4.executeQuery();
-                    %>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% while (rs4.next()) { %>
-                            <tr>
-                                <td><%= rs4.getDate("date") %></td>
-                                <td><%= rs4.getString("description") %></td>
-                                <td>$<%= rs4.getDouble("amount") %></td>
-                            </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                    <% 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (rs4 != null) rs4.close();
-                            if (pstmt4 != null) pstmt4.close();
-                            if (conn4 != null) conn4.close();
+                            if (rs != null) try { rs.close(); } catch (SQLException e) {}
+                            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
+                            if (conn != null) try { conn.close(); } catch (SQLException e) {}
                         }
                     %>
                 </div>
@@ -240,7 +120,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <button class="btn btn-success" onclick="location.href='addExpense.jsp'">Add Expense</button>
-                    <button class="btn btn-primary" onclick="location.href='createGroup.jsp'">Create New Trip</button>
+                    <button class="btn btn-primary" onclick="location.href='createGroup.jsp'">Create New Group</button>
                 </div>
             </div>
         </section>

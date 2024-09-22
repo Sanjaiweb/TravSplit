@@ -69,6 +69,7 @@
                     int rowsAffected = pstmt.executeUpdate();
                     if (rowsAffected > 0) {
                         out.println("<div class='alert alert-success mt-3'>Expense added successfully!</div>");
+                         response.sendRedirect("manageExpense.jsp");
                     } else {
                         out.println("<div class='alert alert-danger mt-3'>Failed to add expense. Please try again.</div>");
                     }
