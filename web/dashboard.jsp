@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAVSPLIT Dashboard</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css"> <!-- Link to your custom CSS file -->
 </head>
@@ -68,7 +67,7 @@
                                 double totalExpenses = 0.0;
                                 try {
                                     Class.forName("com.mysql.cj.jdbc.Driver");
-                                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "username", "password");
+                                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
                                     // Get total expenses for this user
                                     String expenseQuery = "SELECT SUM(amount) FROM expenses WHERE user_id = ?";
@@ -107,10 +106,10 @@
                                 int totalTrips = 0;
                                 try {
                                     Class.forName("com.mysql.cj.jdbc.Driver");
-                                    conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "username", "password");
+                                    conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
                                     // Get total trips for this user
-                                    String tripQuery = "SELECT COUNT(*) FROM trips WHERE user_id = ?";
+                                    String tripQuery = "SELECT COUNT(*) FROM groups WHERE user_id = ?";
                                     pstmt2 = conn2.prepareStatement(tripQuery);
                                     pstmt2.setInt(1, (Integer) session.getAttribute("user_id"));
                                     rs2 = pstmt2.executeQuery();
@@ -134,10 +133,11 @@
             </div>
         </section>
 
+        <!-- Existing Trips/Groups Section -->
         <section class="mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h3>Recent Transactions</h3>
+                    <h3>Your Trips/Groups</h3>
                 </div>
                 <div class="card-body">
                     <%
@@ -146,28 +146,28 @@
                         ResultSet rs3 = null;
                         try {
                             Class.forName("com.mysql.cj.jdbc.Driver");
-                            conn3 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "username", "password");
+                            conn3 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
 
-                            // Get recent transactions for this user
-                            String transactionQuery = "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC LIMIT 5";
-                            pstmt3 = conn3.prepareStatement(transactionQuery);
+                            // Get trips/groups for this user
+                            String tripListQuery = "SELECT group_name, description, created_at FROM groups WHERE user_id = ?";
+                            pstmt3 = conn3.prepareStatement(tripListQuery);
                             pstmt3.setInt(1, (Integer) session.getAttribute("user_id"));
                             rs3 = pstmt3.executeQuery();
                     %>
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Group Name</th>
                                 <th>Description</th>
-                                <th>Amount</th>
+                                <th>Date Created</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% while (rs3.next()) { %>
                             <tr>
-                                <td><%= rs3.getDate("date") %></td>
+                                <td><%= rs3.getString("group_name") %></td>
                                 <td><%= rs3.getString("description") %></td>
-                                <td>$<%= rs3.getDouble("amount") %></td>
+                                <td><%= rs3.getDate("created_at") %></td>
                             </tr>
                             <% } %>
                         </tbody>
@@ -184,7 +184,58 @@
                 </div>
             </div>
         </section>
-  
+
+        <!-- Recent Transactions Section -->
+        <section class="mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Transactions</h3>
+                </div>
+                <div class="card-body">
+                    <%  Connection conn4 = null;
+                        PreparedStatement pstmt4 = null;
+                        ResultSet rs4 = null;
+                        try {
+                            Class.forName("com.mysql.cj.jdbc.Driver");
+                            conn4 = DriverManager.getConnection("jdbc:mysql://localhost:3306/travsplit_db", "sanjai", "sa07nj12ai04");
+
+                            // Get recent transactions for this user
+                            String transactionQuery = "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC LIMIT 5";
+                            pstmt4 = conn4.prepareStatement(transactionQuery);
+                            pstmt4.setInt(1, (Integer) session.getAttribute("user_id"));
+                            rs4 = pstmt4.executeQuery();
+                    %>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% while (rs4.next()) { %>
+                            <tr>
+                                <td><%= rs4.getDate("date") %></td>
+                                <td><%= rs4.getString("description") %></td>
+                                <td>$<%= rs4.getDouble("amount") %></td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    <% 
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (rs4 != null) rs4.close();
+                            if (pstmt4 != null) pstmt4.close();
+                            if (conn4 != null) conn4.close();
+                        }
+                    %>
+                </div>
+            </div>
+        </section>
+
         <section class="mb-4">
             <div class="card">
                 <div class="card-body text-center">
@@ -194,9 +245,6 @@
             </div>
         </section>
     </div>
-
-    <!-- Footer -->
-
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
