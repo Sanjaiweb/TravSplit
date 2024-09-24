@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <h2 class="mt-5">Add Expense</h2>
-        <form method="post" action="addExpense.jsp">
+        <form method="post" action=".Manage Expense/addExpense.jsp">
             <div class="form-group">
                 <label for="description">Description</label>
                 <input type="text" class="form-control" id="description" name="description" required>

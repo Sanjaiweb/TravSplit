@@ -33,7 +33,7 @@
     </header>
 
     <div class="container">
-        <button class="btn btn-success mb-3" onclick="window.location.href='addExpense.jsp'">Add New Expense</button>
+        <button class="btn btn-success mb-3" onclick="window.location.href='ManageExpense/addExpense.jsp'">Add New Expense</button>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -72,8 +72,8 @@
                                     <td><%= rs.getString("description") %></td>
                                     <td>$ <%= rs.getDouble("amount") %></td>
                                     <td>
-                                        <a href="editExpense.jsp?expense_id=<%= rs.getInt("expense_id") %>" class="btn btn-primary">Edit</a>
-                                        <a href="deleteExpense.jsp?expense_id=<%= rs.getInt("expense_id") %>" class="btn btn-danger">Delete</a>
+                                        <a href="ManageExpense/editExpense.jsp?expense_id=<%= rs.getInt("expense_id") %>" class="btn btn-primary">Edit</a>
+                                        <a href="ManageExpense/deleteExpense.jsp?expense_id=<%= rs.getInt("expense_id") %>" class="btn btn-danger">Delete</a>
                                     </td>
                                 </tr>
                 <%

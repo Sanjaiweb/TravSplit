@@ -26,7 +26,7 @@
 
             int result = pstmt.executeUpdate();
             if (result > 0) {
-                response.sendRedirect("manageExpense.jsp");
+                response.sendRedirect("../manageExpense.jsp");
             } else {
                 out.println("<div class='alert alert-danger'>Failed to delete expense.</div>");
             }
