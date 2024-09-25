@@ -32,7 +32,7 @@
                 if (rs.next()) {
                     // Render the form with existing expense data
                     %>
-                    <form method="post" action="editExpense.jsp?expense_id=<%= expenseId %>"> <!-- Changed to use expense_id -->
+                    <form method="post" action="ManageExpense/editExpense.jsp?expense_id=<%= expenseId %>"> <!-- Changed to use expense_id -->
                         <div class="form-group">
                             <label for="expenseName">Expense Name</label>
                             <input type="text" id="expenseName" name="description" value="<%= rs.getString("description") %>" required class="form-control">
@@ -61,7 +61,7 @@
 
                     int rowsAffected = pstmt.executeUpdate();
                     if (rowsAffected > 0) {
-                        response.sendRedirect("manageExpense.jsp");
+                        response.sendRedirect("../manageExpense.jsp");
                     } else {
                         out.println("<div class='alert alert-danger'>Failed to update expense.</div>");
                     }

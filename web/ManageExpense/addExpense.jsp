@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <h2 class="mt-5">Add Expense</h2>
-        <form method="post" action=".Manage Expense/addExpense.jsp">
+        <form method="post" action="Manage Expense/addExpense.jsp">
             <div class="form-group">
                 <label for="description">Description</label>
                 <input type="text" class="form-control" id="description" name="description" required>
@@ -69,7 +69,7 @@
                     int rowsAffected = pstmt.executeUpdate();
                     if (rowsAffected > 0) {
                         out.println("<div class='alert alert-success mt-3'>Expense added successfully!</div>");
-                         response.sendRedirect("manageExpense.jsp");
+                         response.sendRedirect("../manageExpense.jsp");
                     } else {
                         out.println("<div class='alert alert-danger mt-3'>Failed to add expense. Please try again.</div>");
                     }

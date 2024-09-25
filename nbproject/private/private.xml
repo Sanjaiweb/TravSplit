@@ -5,10 +5,11 @@
         <group>
             <file>file:/E:/sem5/se/project/TravSplit/web/manageExpense.jsp</file>
             <file>file:/E:/sem5/se/project/TravSplit/web/createGroup.jsp</file>
-            <file>file:/E:/sem5/se/project/TravSplit/web/deleteExpense.jsp</file>
             <file>file:/E:/sem5/se/project/TravSplit/web/index.jsp</file>
             <file>file:/E:/sem5/se/project/TravSplit/web/dashboard.jsp</file>
-            <file>file:/E:/sem5/se/project/TravSplit/web/editExpense.jsp</file>
+            <file>file:/E:/sem5/se/project/TravSplit/web/ManageExpense/editExpense.jsp</file>
+            <file>file:/E:/sem5/se/project/TravSplit/web/ManageExpense/deleteExpense.jsp</file>
+            <file>file:/E:/sem5/se/project/TravSplit/web/ManageExpense/addExpense.jsp</file>
         </group>
     </open-files>
 </project-private>
